@@ -22,6 +22,7 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 
 import org.jboss.resteasy.annotations.Form;
+import org.jboss.resteasy.annotations.SlashInPath;
 import org.jboss.resteasy.client.ClientURI;
 import org.jboss.resteasy.client.jaxrs.i18n.Messages;
 import org.jboss.resteasy.client.jaxrs.internal.ClientConfiguration;
@@ -86,6 +87,8 @@ public class ProcessorFactory
 
       boolean isEncoded = FindAnnotation.findAnnotation(annotations,
               Encoded.class) != null;
+      boolean isSlashInPath = FindAnnotation.findAnnotation(annotations,
+          SlashInPath.class) != null; 
 
       if ((query = FindAnnotation.findAnnotation(annotations, QueryParam.class)) != null)
       {
@@ -104,7 +107,7 @@ public class ProcessorFactory
       else if ((uriParam = FindAnnotation.findAnnotation(annotations,
               PathParam.class)) != null)
       {
-         processor = new PathParamProcessor(uriParam.value());
+         processor = new PathParamProcessor(uriParam.value(),isEncoded,isSlashInPath);
       }
       else if ((matrix = FindAnnotation.findAnnotation(annotations,
               MatrixParam.class)) != null)

@@ -11,15 +11,34 @@ import javax.ws.rs.client.WebTarget;
 public class PathParamProcessor implements WebTargetProcessor
 {
    private final String paramName;
+   private final boolean encoded;
+   private final boolean slashInPath;
 
    public PathParamProcessor(String paramName)
    {
-      this.paramName = paramName;
+      this(paramName,false,true);
+   }
+
+
+   public PathParamProcessor(String paramName, boolean encoded, boolean slashInPath) 
+   {
+       this.paramName = paramName;
+       this.encoded = encoded;
+       this.slashInPath = slashInPath;
+       if( this.encoded && this.slashInPath ) {
+           throw new UnsupportedOperationException("Unsupported combination of @Encoded and @SlashInPath");
+       }
    }
 
    @Override
    public WebTarget build(WebTarget target, Object param)
    {
-      return target.resolveTemplate(paramName, param);
+       if (slashInPath) {
+           return target.resolveTemplate(paramName, param,false);
+       } else if (encoded) {
+           return target.resolveTemplateFromEncoded(paramName, param);
+       } else {
+           return target.resolveTemplate(paramName, param);
+       }
    }
 }
